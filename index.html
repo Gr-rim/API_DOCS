@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" x-data="{ darkMode: false }" :class="{ 'dark': darkMode }" x-init="darkMode = localStorage.getItem('theme') === 'dark'">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -11,20 +11,26 @@
   <script src="https://unpkg.com/alpinejs" defer></script>
   <style>
     [x-cloak] { display: none; }
+    .drop-shadow-md {
+      text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.4);
+    }
   </style>
 </head>
-<body class="bg-gray-50 text-gray-800">
+<body class="bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-white transition-colors duration-300">
 
   <!-- Navigation Bar -->
-  <nav class="bg-white shadow sticky top-0 z-50">
+  <nav class="bg-white dark:bg-gray-800 shadow sticky top-0 z-50">
     <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
       <h1 class="text-xl font-bold">FreJun Docs</h1>
       <div class="space-x-4">
-        <a href="#quick-start" class="text-gray-600 hover:text-[#EF4C23]">Quick Start</a>
-        <a href="#developer-guides" class="text-gray-600 hover:text-[#EF4C23]">Guides</a>
-        <a href="#api-reference" class="text-gray-600 hover:text-[#EF4C23]">API</a>
-        <a href="https://github.com/FreJun" class="text-gray-600 hover:text-[#EF4C23]">GitHub</a>
-        <a href="#support" class="text-gray-600 hover:text-[#EF4C23]">Support</a>
+        <a href="#quick-start" class="text-gray-600 dark:text-gray-300 hover:text-[#EF4C23]">Quick Start</a>
+        <a href="#developer-guides" class="text-gray-600 dark:text-gray-300 hover:text-[#EF4C23]">Guides</a>
+        <a href="#api-reference" class="text-gray-600 dark:text-gray-300 hover:text-[#EF4C23]">API</a>
+        <a href="https://github.com/FreJun" class="text-gray-600 dark:text-gray-300 hover:text-[#EF4C23]">GitHub</a>
+        <a href="#support" class="text-gray-600 dark:text-gray-300 hover:text-[#EF4C23]">Support</a>
+        <button @click="darkMode = !darkMode; localStorage.setItem('theme', darkMode ? 'dark' : 'light')" class="ml-4 px-2 py-1 border rounded text-sm text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition">
+          Toggle Theme
+        </button>
       </div>
     </div>
   </nav>
@@ -32,14 +38,14 @@
   <!-- Hero Section -->
   <section class="text-center py-24 px-6 bg-gradient-to-br from-[#EF4C23] to-[#FB774C] text-white" x-data="{ show: false }" x-init="show = true">
     <div x-show="show" x-transition.duration.1000ms>
-      <h1 class="text-5xl font-extrabold mb-4">FreJun API & SDK Documentation</h1>
-      <p class="max-w-2xl mx-auto text-lg mb-6">
+      <h1 class="text-5xl font-extrabold mb-4 drop-shadow-md">FreJun API & SDK Documentation</h1>
+      <p class="max-w-2xl mx-auto text-lg mb-6 drop-shadow-md">
         Build, test, and deploy enterprise-grade voice communication. Our comprehensive guides, REST API reference, and official SDKs provide everything you need to embed scalable calling capabilities into your application.
       </p>
       <a href="#api-reference" class="bg-white text-[#EF4C23] font-semibold px-6 py-3 rounded hover:bg-gray-200 transition">Explore API Reference</a>
     </div>
   </section>
-
+  
   <!-- Quick Start Section -->
   <section class="py-20 px-6" id="quick-start">
     <div class="max-w-5xl mx-auto text-center" x-data="{ show: false }" x-intersect.once="show = true">
