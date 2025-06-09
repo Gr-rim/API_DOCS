@@ -1,14 +1,44 @@
 <!DOCTYPE html>
-<html lang="en" x-data="{ darkMode: false }" :class="{ 'dark': darkMode }" x-init="darkMode = localStorage.getItem('theme') === 'dark'">
+<html lang="en" x-data="{ darkMode: false }" :class="{ 'dark': darkMode }" x-init="darkMode = localStorage.getItem('theme') === 'dark' || false">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>FreJun API & SDK Documentation</title>
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-  <script src="https://unpkg.com/@popperjs/core@2"></script>
-  <script src="https://unpkg.com/flowbite@1.4.1/dist/flowbite.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@headlessui/react@latest/dist/headlessui.umd.js"></script>
-  <script src="https://unpkg.com/alpinejs" defer></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            primary: '#EF4C23',
+            'primary-hover': '#e0431c',
+            'primary-light': '#FB774C'
+          }
+        }
+      }
+    }
+    
+    // Simple intersection observer for Alpine.js
+    document.addEventListener('alpine:init', () => {
+      Alpine.directive('intersect', (el, { expression, modifiers }, { evaluate }) => {
+        const observer = new IntersectionObserver((entries) => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting) {
+              evaluate(expression);
+              if (modifiers.includes('once')) {
+                observer.unobserve(el);
+              }
+            }
+          });
+        }, {
+          threshold: 0.1
+        });
+        observer.observe(el);
+      });
+    });
+  </script>
   <style>
     [x-cloak] { display: none; }
     .drop-shadow-md {
@@ -20,54 +50,83 @@
 
   <!-- Navigation Bar -->
   <nav class="bg-white dark:bg-gray-800 shadow sticky top-0 z-50">
-    <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
-      <h1 class="text-xl font-bold">FreJun Docs</h1>
-      <div class="space-x-4">
-        <a href="#quick-start" class="text-gray-600 dark:text-gray-300 hover:text-[#EF4C23]">Quick Start</a>
-        <a href="#developer-guides" class="text-gray-600 dark:text-gray-300 hover:text-[#EF4C23]">Guides</a>
-        <a href="#api-reference" class="text-gray-600 dark:text-gray-300 hover:text-[#EF4C23]">API</a>
-        <a href="https://github.com/FreJun" class="text-gray-600 dark:text-gray-300 hover:text-[#EF4C23]">GitHub</a>
-        <a href="#support" class="text-gray-600 dark:text-gray-300 hover:text-[#EF4C23]">Support</a>
-        <button @click="darkMode = !darkMode; localStorage.setItem('theme', darkMode ? 'dark' : 'light')" class="ml-4 px-2 py-1 border rounded text-sm text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition">
-          Toggle Theme
-        </button>
+    <div class="max-w-7xl mx-auto px-4 py-4">
+      <div class="flex justify-between items-center">
+        <h1 class="text-xl font-bold">FreJun Docs</h1>
+        <div class="hidden md:flex space-x-4">
+          <a href="#quick-start" class="text-gray-600 dark:text-gray-300 hover:text-primary transition-colors">Quick Start</a>
+          <a href="#developer-guides" class="text-gray-600 dark:text-gray-300 hover:text-primary transition-colors">Guides</a>
+          <a href="#api-reference" class="text-gray-600 dark:text-gray-300 hover:text-primary transition-colors">API</a>
+          <a href="https://github.com/FreJun" class="text-gray-600 dark:text-gray-300 hover:text-primary transition-colors">GitHub</a>
+          <a href="#support" class="text-gray-600 dark:text-gray-300 hover:text-primary transition-colors">Support</a>
+          <button 
+            @click="darkMode = !darkMode; localStorage.setItem('theme', darkMode ? 'dark' : 'light')" 
+            class="ml-4 px-3 py-1 border border-gray-300 dark:border-gray-600 rounded text-sm text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+            aria-label="Toggle dark mode">
+            <span x-text="darkMode ? '☀️' : '🌙'"></span>
+          </button>
+        </div>
+        <!-- Mobile menu button -->
+        <div class="md:hidden" x-data="{ mobileMenuOpen: false }">
+          <button @click="mobileMenuOpen = !mobileMenuOpen" class="text-gray-600 dark:text-gray-300" aria-label="Toggle mobile menu">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+            </svg>
+          </button>
+          <!-- Mobile menu -->
+          <div x-show="mobileMenuOpen" x-transition class="absolute top-full left-0 right-0 bg-white dark:bg-gray-800 shadow-lg border-t dark:border-gray-700">
+            <div class="px-4 py-2 space-y-2">
+              <a href="#quick-start" class="block py-2 text-gray-600 dark:text-gray-300 hover:text-primary transition-colors">Quick Start</a>
+              <a href="#developer-guides" class="block py-2 text-gray-600 dark:text-gray-300 hover:text-primary transition-colors">Guides</a>
+              <a href="#api-reference" class="block py-2 text-gray-600 dark:text-gray-300 hover:text-primary transition-colors">API</a>
+              <a href="https://github.com/FreJun" class="block py-2 text-gray-600 dark:text-gray-300 hover:text-primary transition-colors">GitHub</a>
+              <a href="#support" class="block py-2 text-gray-600 dark:text-gray-300 hover:text-primary transition-colors">Support</a>
+              <button 
+                @click="darkMode = !darkMode; localStorage.setItem('theme', darkMode ? 'dark' : 'light')" 
+                class="block w-full text-left py-2 text-gray-600 dark:text-gray-300 hover:text-primary transition-colors"
+                aria-label="Toggle dark mode">
+                <span x-text="darkMode ? '☀️ Light Mode' : '🌙 Dark Mode'"></span>
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </nav>
 
   <!-- Hero Section -->
-  <section class="text-center py-24 px-6 bg-gradient-to-br from-[#EF4C23] to-[#FB774C] text-white" x-data="{ show: false }" x-init="show = true">
-    <div x-show="show" x-transition.duration.1000ms>
-      <h1 class="text-5xl font-extrabold mb-4 drop-shadow-md">FreJun API & SDK Documentation</h1>
+  <section class="text-center py-24 px-6 bg-gradient-to-br from-primary to-primary-light text-white" x-data="{ show: false }" x-init="setTimeout(() => show = true, 100)">
+    <div x-show="show" x-transition.duration.1000ms class="max-w-4xl mx-auto">
+      <h1 class="text-4xl md:text-5xl font-extrabold mb-4 drop-shadow-md">FreJun API & SDK Documentation</h1>
       <p class="max-w-2xl mx-auto text-lg mb-6 drop-shadow-md">
         Build, test, and deploy enterprise-grade voice communication. Our comprehensive guides, REST API reference, and official SDKs provide everything you need to embed scalable calling capabilities into your application.
       </p>
-      <a href="#api-reference" class="bg-white text-[#EF4C23] font-semibold px-6 py-3 rounded hover:bg-gray-200 transition">Explore API Reference</a>
+      <a href="#api-reference" class="inline-block bg-white text-primary font-semibold px-6 py-3 rounded hover:bg-gray-100 transition-colors">Explore API Reference</a>
     </div>
   </section>
   
   <!-- Quick Start Section -->
   <section class="py-20 px-6" id="quick-start">
     <div class="max-w-5xl mx-auto text-center" x-data="{ show: false }" x-intersect.once="show = true">
-      <div x-show="show" x-transition>
+      <div x-show="show" x-transition.duration.500ms>
         <h2 class="text-3xl font-bold mb-4">Start Building in 5 Minutes</h2>
-        <p class="text-lg max-w-2xl mx-auto mb-6">
+        <p class="text-lg max-w-2xl mx-auto mb-6 text-gray-600 dark:text-gray-300">
           Follow this guide for a fast-track integration. We'll walk you through authenticating with your API key, installing the SDK for your preferred stack, making your first outbound call via our API, and setting up webhooks to receive real-time call status updates directly in your system.
         </p>
-        <a href="https://frejun.com/docs/quickstart" class="bg-[#EF4C23] text-white px-5 py-2 rounded hover:bg-[#e0431c] transition">Go to Quick Start Guide</a>
+        <a href="https://frejun.com/docs/quickstart" class="inline-block bg-primary text-white px-5 py-2 rounded hover:bg-primary-hover transition-colors">Go to Quick Start Guide</a>
       </div>
     </div>
   </section>
 
   <!-- Developer Guides Section -->
-  <section class="bg-gray-100 py-20 px-6" id="developer-guides">
+  <section class="bg-gray-100 dark:bg-gray-800 py-20 px-6" id="developer-guides">
     <div class="max-w-5xl mx-auto text-center" x-data="{ show: false }" x-intersect.once="show = true">
-      <div x-show="show" x-transition>
+      <div x-show="show" x-transition.duration.500ms>
         <h2 class="text-3xl font-bold mb-4">In-Depth Developer Guides</h2>
-        <p class="text-lg max-w-2xl mx-auto mb-6">
+        <p class="text-lg max-w-2xl mx-auto mb-6 text-gray-600 dark:text-gray-300">
           Go beyond the basics. Our detailed guides cover core architectural concepts, from managing the entire call lifecycle and fetching comprehensive call analytics to implementing best practices for error handling and security.
         </p>
-        <a href="https://frejun.com/docs/guides" class="bg-[#EF4C23] text-white px-5 py-2 rounded hover:bg-[#e0431c] transition">Read the Guides</a>
+        <a href="https://frejun.com/docs/guides" class="inline-block bg-primary text-white px-5 py-2 rounded hover:bg-primary-hover transition-colors">Read the Guides</a>
       </div>
     </div>
   </section>
@@ -75,25 +134,25 @@
   <!-- API Reference Section -->
   <section class="py-20 px-6" id="api-reference">
     <div class="max-w-5xl mx-auto text-center" x-data="{ show: false }" x-intersect.once="show = true">
-      <div x-show="show" x-transition>
+      <div x-show="show" x-transition.duration.500ms>
         <h2 class="text-3xl font-bold mb-4">Interactive API Reference</h2>
-        <p class="text-lg max-w-2xl mx-auto mb-6">
+        <p class="text-lg max-w-2xl mx-auto mb-6 text-gray-600 dark:text-gray-300">
           Explore every endpoint in our REST API. Our interactive reference provides detailed information on all available resources, parameters, request/response examples, and error codes.
         </p>
-        <a href="https://frejun.com/docs/reference" class="bg-[#EF4C23] text-white px-5 py-2 rounded hover:bg-[#e0431c] transition">Launch API Reference</a>
+        <a href="https://frejun.com/docs/reference" class="inline-block bg-primary text-white px-5 py-2 rounded hover:bg-primary-hover transition-colors">Launch API Reference</a>
       </div>
     </div>
   </section>
 
   <!-- SDKs Section -->
-  <section class="bg-gray-100 py-20 px-6">
+  <section class="bg-gray-100 dark:bg-gray-800 py-20 px-6">
     <div class="max-w-5xl mx-auto text-center" x-data="{ show: false }" x-intersect.once="show = true">
-      <div x-show="show" x-transition>
+      <div x-show="show" x-transition.duration.500ms>
         <h2 class="text-3xl font-bold mb-4">Official SDKs and Libraries</h2>
-        <p class="text-lg max-w-2xl mx-auto mb-6">
+        <p class="text-lg max-w-2xl mx-auto mb-6 text-gray-600 dark:text-gray-300">
           Accelerate your development cycle with our official SDKs. These libraries provide a convenient wrapper around our REST API, handling authentication, request signing, and data serialization for you.
         </p>
-        <a href="https://github.com/FreJun" class="bg-[#EF4C23] text-white px-5 py-2 rounded hover:bg-[#e0431c] transition">View SDKs on GitHub</a>
+        <a href="https://github.com/FreJun" class="inline-block bg-primary text-white px-5 py-2 rounded hover:bg-primary-hover transition-colors">View SDKs on GitHub</a>
       </div>
     </div>
   </section>
@@ -101,32 +160,39 @@
   <!-- Support Section -->
   <section class="py-20 px-6" id="support">
     <div class="max-w-5xl mx-auto text-center" x-data="{ show: false }" x-intersect.once="show = true">
-      <div x-show="show" x-transition>
+      <div x-show="show" x-transition.duration.500ms>
         <h2 class="text-3xl font-bold mb-4">Developer Support & Resources</h2>
-        <p class="text-lg max-w-2xl mx-auto mb-6">
+        <p class="text-lg max-w-2xl mx-auto mb-6 text-gray-600 dark:text-gray-300">
           Encountering a technical challenge or have a question about implementation? Our developer support team is ready to assist.
         </p>
-        <a href="mailto:support@frejun.com" class="bg-[#EF4C23] text-white px-5 py-2 rounded hover:bg-[#e0431c] transition">Contact Support</a>
+        <a href="mailto:support@frejun.com" class="inline-block bg-primary text-white px-5 py-2 rounded hover:bg-primary-hover transition-colors">Contact Support</a>
       </div>
     </div>
   </section>
 
   <!-- Testimonials Section -->
-  <section class="bg-white py-20 px-6">
+  <section class="bg-white dark:bg-gray-900 py-20 px-6">
     <div class="max-w-5xl mx-auto text-center">
       <h2 class="text-3xl font-bold mb-10">What Our Customers Say</h2>
       <div class="grid gap-10 md:grid-cols-2">
-        <div class="bg-gray-100 p-6 rounded shadow transition-transform transform hover:scale-105">
-          <p class="italic">"Integrating FreJun's API was seamless. Their documentation made our setup faster and smoother than expected."</p>
+        <div class="bg-gray-100 dark:bg-gray-800 p-6 rounded-lg shadow transition-transform transform hover:scale-105">
+          <p class="italic text-gray-700 dark:text-gray-300">"Integrating FreJun's API was seamless. Their documentation made our setup faster and smoother than expected."</p>
           <p class="mt-4 font-semibold">— Priya Sharma, CTO, CallConnect</p>
         </div>
-        <div class="bg-gray-100 p-6 rounded shadow transition-transform transform hover:scale-105">
-          <p class="italic">"The SDKs are well-structured and the support team is incredibly responsive. We've built a robust call system in no time."</p>
+        <div class="bg-gray-100 dark:bg-gray-800 p-6 rounded-lg shadow transition-transform transform hover:scale-105">
+          <p class="italic text-gray-700 dark:text-gray-300">"The SDKs are well-structured and the support team is incredibly responsive. We've built a robust call system in no time."</p>
           <p class="mt-4 font-semibold">— Ankit Mehta, Engineering Lead, BizVoice</p>
         </div>
       </div>
     </div>
   </section>
+
+  <!-- Fallback for users with JavaScript disabled -->
+  <noscript>
+    <div class="fixed top-0 left-0 right-0 bg-yellow-100 border-b border-yellow-300 p-4 text-center text-yellow-800 z-50">
+      This site works best with JavaScript enabled for enhanced interactivity.
+    </div>
+  </noscript>
 
 </body>
 </html>
